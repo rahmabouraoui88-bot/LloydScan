@@ -1,0 +1,39 @@
+
+# Compilation de LloydScan dans le cloud GitHub
+
+name: Compilation LloydScan
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Recuperer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Compiler version TEST
+        run: dotnet publish src/LloydScan.App/LloydScan.App.csproj -c Debug -r win-x86 --self-contained true -o publish/test-x86
+
+      - name: Compiler version PRODUCTION
+        run: dotnet publish src/LloydScan.App/LloydScan.App.csproj -c Release -r win-x86 --self-contained true -o publish/x86
+
+      - name: Publier version TEST
+        uses: actions/upload-artifact@v4
+        with:
+          name: LloydScan-TEST-portable-x86
+          path: publish/test-x86
+
+      - name: Publier version PRODUCTION
+        uses: actions/upload-artifact@v4
+        with:
+          name: LloydScan-PRODUCTION-x86
+          path: publish/x86
